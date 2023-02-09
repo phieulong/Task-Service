@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Task, TaskStatus } from './tasks.model';
 import { v4 as uuid } from 'uuid';
 import { CreateTaskDto } from './dtos/create-task.dto';
@@ -8,7 +8,14 @@ export class TasksService {
   private tasks: Task[] = [];
 
   getById(id: string): Task {
-    return this.tasks.find((task) => task.id === id);
+    const task = this.tasks.find((task) => task.id === id);
+    if (!task) {
+      throw new HttpException(
+        { code: 400001, message: `Task with ID[${id}] not found.` },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return task;
   }
 
   getAll(): Task[] {
