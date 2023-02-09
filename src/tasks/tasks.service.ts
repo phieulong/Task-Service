@@ -17,14 +17,12 @@ export class TasksService {
 
   create(dto: CreateTaskDto): Task {
     const { title, description } = dto;
-
     const task: Task = {
       id: uuid(),
       title,
       description,
       status: TaskStatus.OPEN,
     };
-
     this.tasks.push(task);
     return task;
   }
@@ -32,27 +30,26 @@ export class TasksService {
   deleteById(id: string): string {
     let isNaN = true;
     for (let i = 0; i < this.tasks.length; i++) {
-      this.tasks = this.tasks.filter((task) => task.id != id);
       if (this.tasks[i].id == id) {
         this.tasks.splice(i, 1);
         isNaN = false;
       }
     }
     console.log(this.tasks);
-    if (isNaN == true) {
+    if (isNaN) {
       return 'not found';
     }
     return 'deleted';
   }
 
   updateStatus(id: string, status: string): Task {
-    const task = this.tasks.find((task) => task.id === id);
-    if (task === null) {
+    const task = this.getById(id);
+    if (!task) {
       console.log('not found');
       return task;
     }
     const taskStatus: TaskStatus = TaskStatus[status];
-    if (taskStatus === null) {
+    if (!taskStatus) {
       console.log('status invalid');
       return task;
     }
