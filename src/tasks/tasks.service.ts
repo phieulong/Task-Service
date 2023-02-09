@@ -44,4 +44,19 @@ export class TasksService {
     }
     return 'deleted';
   }
+
+  updateStatus(id: string, status: string): Task {
+    const task = this.tasks.find((task) => task.id === id);
+    if (task === null) {
+      console.log('not found');
+      return task;
+    }
+    const taskStatus: TaskStatus = TaskStatus[status];
+    if (taskStatus === null) {
+      console.log('status invalid');
+      return task;
+    }
+    task.status = taskStatus;
+    return task;
+  }
 }
