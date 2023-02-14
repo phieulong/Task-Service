@@ -28,10 +28,18 @@ export class TasksService {
     if (!Object.keys(dto).length) {
       return this.repository.query(`select * from task`);
     }
-    return this.repository.findBy({
-      title: dto.title,
-      description: dto.description,
-    });
+    const query = this.repository.createQueryBuilder('task');
+    if (dto.title) {
+      const title = dto.title;
+      query.andWhere('task.title = :title', { title });
+    }
+    if (dto.description) {
+      const description = dto.description;
+      query.andWhere('task.description like :description', {
+        description: `%${dto.description}%`,
+      });
+    }
+    return query.getMany();
   }
 
   async create(dto: CreateTaskDto): Promise<Task> {
