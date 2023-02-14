@@ -1,14 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Task, TaskStatus } from './tasks.model';
-import { v4 as uuid } from 'uuid';
+import { TaskStatus } from './tasks-status.enum';
 import { CreateTaskDto } from './dtos/create-task.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Task } from './tasks.entity';
+import { Repository } from 'typeorm';
+import { SearchTaskDto } from './dtos/search-task.dto';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
+  constructor(
+    @InjectRepository(Task)
+    private repository: Repository<Task>,
+  ) {}
 
-  getById(id: string): Task {
-    const task = this.tasks.find((task) => task.id === id);
+  async getById(id: string): Promise<Task> {
+    const task = await this.repository.findOneBy({ id: id });
     if (!task) {
       throw new HttpException(
         { code: 400001, message: `Task with ID[${id}] not found.` },
@@ -18,49 +24,42 @@ export class TasksService {
     return task;
   }
 
-  getAll(): Task[] {
-    return this.tasks;
-  }
-
-  create(dto: CreateTaskDto): Task {
-    const { title, description } = dto;
-    const task: Task = {
-      id: uuid(),
-      title,
-      description,
-      status: TaskStatus.OPEN,
-    };
-    this.tasks.push(task);
-    return task;
-  }
-
-  deleteById(id: string): string {
-    let isNaN = true;
-    for (let i = 0; i < this.tasks.length; i++) {
-      if (this.tasks[i].id == id) {
-        this.tasks.splice(i, 1);
-        isNaN = false;
-      }
+  async search(dto: SearchTaskDto): Promise<Task[]> {
+    if (!Object.keys(dto).length) {
+      return this.repository.query(`select * from task`);
     }
-    console.log(this.tasks);
-    if (isNaN) {
+    return this.repository.findBy({
+      title: dto.title,
+      description: dto.description,
+    });
+  }
+
+  async create(dto: CreateTaskDto): Promise<Task> {
+    const task = this.repository.create({
+      title: dto.title,
+      description: dto.description,
+      status: TaskStatus.OPEN,
+    });
+    return this.repository.save(task);
+  }
+
+  async deleteById(id: string): Promise<string> {
+    const result = await this.repository.delete(id);
+    console.log(`Deleted ${result.affected} row(s).`);
+    if (!result.affected) {
       return 'not found';
     }
     return 'deleted';
   }
 
-  updateStatus(id: string, status: string): Task {
-    const task = this.getById(id);
-    if (!task) {
-      console.log('not found');
-      return task;
-    }
-    const taskStatus: TaskStatus = TaskStatus[status];
+  async updateStatus(id: string, status: string): Promise<Task> {
+    const task = await this.getById(id);
+    const taskStatus = TaskStatus[status];
     if (!taskStatus) {
       console.log('status invalid');
       return task;
     }
     task.status = taskStatus;
-    return task;
+    return this.repository.save(task);
   }
 }
