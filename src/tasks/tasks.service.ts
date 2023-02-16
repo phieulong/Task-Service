@@ -30,12 +30,12 @@ export class TasksService {
     }
     const query = this.repository.createQueryBuilder('task');
     if (dto.title) {
-      const title = dto.title;
-      query.andWhere('task.title = :title', { title });
+      query.andWhere('LOWER(task.title) LIKE LOWER(:title)', {
+        title: `%${dto.title}%`,
+      });
     }
     if (dto.description) {
-      const description = dto.description;
-      query.andWhere('task.description like :description', {
+      query.andWhere('LOWER(task.description) LIKE LOWER(:description)', {
         description: `%${dto.description}%`,
       });
     }
