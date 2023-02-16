@@ -13,10 +13,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private userRepository: Repository<User>,
   ) {
     super({
-      secretOrKey:
-        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2lipj3v81B/tiL9kZ+7US6MSjKgLyIh21v4Qa3sErlGuT5KHdbqP+x8vqWDJK31O1jBQpBfEinT+RjT31se1UgueDwp51ufdC5rhVHl6A6/NlPwjy0JqbuRik/hiPrtArASMdXoCTb34JhwzOS9RMmNRHAKATNiZQw7DRqnWCe1K2J+yM2xAFplbvcophFY4i5CzF+pvCkYsZcKHcLjy5vYvEka/3ocvBl2RX6JDBhWAP+TpZxWfV2hoEGxersGYJLlCXygeWHfiHd6QPAeoGu6/mj1KVKrQUTqkRivtn8kjnHqX03SV0CvI7HslOe2ZozNDoWxuyq2X1Z0/FEDEgQIDAQAB',
+      secretOrKey: 'secret',
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      algorithms: ['RS256'],
     });
   }
 
