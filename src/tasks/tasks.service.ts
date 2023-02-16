@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './tasks.entity';
 import { Repository } from 'typeorm';
 import { SearchTaskDto } from './dtos/search-task.dto';
+import { User } from 'src/auth/users.entity';
 
 @Injectable()
 export class TasksService {
@@ -13,8 +14,8 @@ export class TasksService {
     private repository: Repository<Task>,
   ) {}
 
-  async getById(id: string): Promise<Task> {
-    const task = await this.repository.findOneBy({ id: id });
+  async getById(id: string, user: User): Promise<Task> {
+    const task = await this.repository.findOne({ where: { id, user } });
     if (!task) {
       throw new HttpException(
         { code: 400001, message: `Task with ID[${id}] not found.` },
@@ -24,11 +25,13 @@ export class TasksService {
     return task;
   }
 
-  async search(dto: SearchTaskDto): Promise<Task[]> {
-    if (!Object.keys(dto).length) {
-      return this.repository.query(`select * from task`);
-    }
+  async search(dto: SearchTaskDto, user: User): Promise<Task[]> {
     const query = this.repository.createQueryBuilder('task');
+
+    if (user) {
+      query.where({ user });
+    }
+
     if (dto.title) {
       query.andWhere('LOWER(task.title) LIKE LOWER(:title)', {
         title: `%${dto.title}%`,
@@ -42,17 +45,18 @@ export class TasksService {
     return query.getMany();
   }
 
-  async create(dto: CreateTaskDto): Promise<Task> {
+  async create(dto: CreateTaskDto, user: User): Promise<Task> {
     const task = this.repository.create({
       title: dto.title,
       description: dto.description,
       status: TaskStatus.OPEN,
+      user,
     });
     return this.repository.save(task);
   }
 
-  async deleteById(id: string): Promise<string> {
-    const result = await this.repository.delete(id);
+  async deleteById(id: string, user: User): Promise<string> {
+    const result = await this.repository.delete({ id, user });
     console.log(`Deleted ${result.affected} row(s).`);
     if (!result.affected) {
       return 'not found';
@@ -60,8 +64,8 @@ export class TasksService {
     return 'deleted';
   }
 
-  async updateStatus(id: string, status: string): Promise<Task> {
-    const task = await this.getById(id);
+  async updateStatus(id: string, status: string, user: User): Promise<Task> {
+    const task = await this.getById(id, user);
     const taskStatus = TaskStatus[status];
     if (!taskStatus) {
       console.log('status invalid');

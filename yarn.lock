@@ -4101,6 +4101,13 @@ passport-jwt@^4.0.1:
     jsonwebtoken "^9.0.0"
     passport-strategy "^1.0.0"
 
+passport-publickey@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/passport-publickey/-/passport-publickey-1.0.4.tgz#9fbb0cb3b0dac746d3ac60f4f6e7f8e1aafe7832"
+  integrity sha512-4p8wZha2Msz7LZ2zs8u1YX8tDShXSVFvePlaNg6u15JR9cd/HJaMyKFm+7m8VWDjJqdtvVgPukU1/jDUf9hSEA==
+  dependencies:
+    passport-strategy "1.x.x"
+
 passport-strategy@1.x.x, passport-strategy@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/passport-strategy/-/passport-strategy-1.0.0.tgz#b5539aa8fc225a3d1ad179476ddf236b440f52e4"
