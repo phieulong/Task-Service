@@ -11,8 +11,7 @@ import { User } from './users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './dtos/jwt-payload.dto';
-import * as jwt from 'jsonwebtoken';
-import { util } from 'prettier';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +19,7 @@ export class AuthService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async signUp(dto: AuthCredentialDto): Promise<string> {
