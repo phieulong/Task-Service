@@ -6,15 +6,24 @@ import { User } from './users.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { privateEncrypt } from 'crypto';
 
 @Module({
   imports: [
+    ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secretOrPrivateKey: 'secret',
-      signOptions: {
-        expiresIn: 3600,
-      },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        privateKey: configService.get('RSA_PRIVATE_KEY').replace(/\\n/g, '\n'),
+        publicKey: configService.get('RSA_PUBLIC_KEY').replace(/\\n/g, '\n'),
+        signOptions: {
+          expiresIn: 3600,
+          algorithm: 'RS256',
+        },
+      }),
     }),
     TypeOrmModule.forFeature([User]),
   ],

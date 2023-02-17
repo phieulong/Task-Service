@@ -11,6 +11,7 @@ import { User } from './users.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './dtos/jwt-payload.dto';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -54,14 +55,17 @@ export class AuthService {
     return await bcrypt.hash(password, salt);
   }
 
-  async signIn(dto: AuthCredentialDto): Promise<{ access_token: string }> {
+  async signIn(
+    dto: AuthCredentialDto,
+    signOptions: jwt.SignOptions = {},
+  ): Promise<{ access_token: string }> {
     const { username } = dto;
     const user = await this.userRepository.findOneBy({
       username: dto.username,
     });
-
     if (user && (await bcrypt.compare(dto.password, user.password))) {
       const payload: JwtPayload = { username };
+
       const access_token: string = await this.jwtService.sign(payload);
       return { access_token };
     }
