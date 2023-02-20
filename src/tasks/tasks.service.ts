@@ -11,8 +11,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './tasks.entity';
 import { Repository } from 'typeorm';
 import { SearchTaskDto } from './dtos/search-task.dto';
-import { User } from 'src/auth/users.entity';
-import { TransformInterceptor } from 'src/transform.interceptor';
+import { User } from '../auth/users.entity';
+import { TransformInterceptor } from '../transform.interceptor';
 
 @Injectable()
 @UseInterceptors(TransformInterceptor)
